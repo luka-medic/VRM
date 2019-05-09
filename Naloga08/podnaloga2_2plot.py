@@ -28,9 +28,6 @@ plt.rc('lines', linewidth=1.0)
 
 periodic = 'per'
 
-for i in range(5):
-    print(i)
-
 ns = [4, 6, 8, 10, 12, 14, 16, 18, 20,]
 
 fig = plt.figure(figsize=(8, 6))
@@ -63,7 +60,7 @@ plt.xlabel('$n_A$ / $n$   (1 $-$ $n_B$ / $n$)')
 plt.ylabel('S')
 plt.legend()
 
-print('sprememba2')
+print('sprememba3')
 
 
 fig.savefig('slika3_4.pdf')
