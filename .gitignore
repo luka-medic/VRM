@@ -1,0 +1,8 @@
+*.npy
+*.aux
+*.log
+*.out
+*.url
+slika*
+*.gz
+data

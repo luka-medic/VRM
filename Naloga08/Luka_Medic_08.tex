@@ -1,0 +1,136 @@
+\documentclass[paper=a4, fontsize=12pt]{scrartcl} %,twoside
+
+\usepackage[a4paper,pdftex]{geometry}										
+\setlength{\oddsidemargin}{5mm}												
+\setlength{\evensidemargin}{5mm}
+\setlength{\paperheight}{29,7cm}
+\setlength{\topmargin }{0cm}
+
+%\usepackage[utf8]{inputenc}
+\usepackage[slovene]{babel}
+%\usepackage[T1]{fontenc}
+\usepackage[protrusion=true,expansion=true]{microtype}	
+\usepackage{amsmath,amsfonts,amsthm,amssymb}
+\usepackage{graphicx}
+%\graphicspath{ {figs2/} }
+\usepackage{subcaption}
+\usepackage[utf8x]{inputenc}
+\usepackage{ucs}
+\usepackage{sectsty}
+\usepackage{pdfpages}
+\usepackage{caption}
+\usepackage{float}
+\usepackage{url}
+\usepackage{hyperref}
+\usepackage{wasysym}
+\usepackage[labelfont=bf]{caption}
+\usepackage{makeidx}
+\usepackage[nottoc,numbib]{tocbibind}
+\usepackage{authoraftertitle}
+\usepackage{titlecaps}
+\usepackage[export]{adjustbox}
+\usepackage{sidecap}
+\usepackage{mathrsfs}
+\usepackage{mhchem}
+\usepackage{rotating}
+\usepackage{wrapfig}
+\usepackage{bbm}
+
+\DeclareCaptionFormat{myformat}{\fontsize{10}{10}\selectfont#1#2#3}
+\captionsetup{format=myformat}
+
+\usepackage{dcolumn}
+\newcolumntype{d}[1]{D{.}{\cdot}{#1}}
+\newcolumntype{.}{D{.}{.}{-1}}
+\newcolumntype{,}{D{,}{,}{2}}
+
+\newcommand{\forcet}{\leavevmode{\parindent=1em\indent}}
+
+\usepackage{afterpage}
+\newcommand\blankpage{%
+    \null
+    \thispagestyle{empty}%
+    \addtocounter{page}{0}%
+    \newpage}
+
+\newcommand{\HRule}[1]{\rule{\linewidth}{#1}} 	% Horizontal rule
+\newcommand\id{\ensuremath{\mathbbm{1}}} 
+
+%Definicije
+\makeatletter							% Title
+\def\printtitle{%						
+    {\centering \@title\par}}
+\makeatother									
+
+\makeatletter							% Author
+\def\printauthor{%					
+    {\centering \large \@author}}			
+\makeatother
+ 
+\makeatletter	
+\newcommand{\thickhline}{%
+	\noalign {\ifnum 0=`}\fi \hrule height 1pt
+	\futurelet \reserved@a \@xhline
+}  
+\makeatother
+\sectionfont{\fontsize{20}{22}\selectfont}
+\subsectionfont{\fontsize{16}{18}\selectfont}
+
+\renewcommand{\d}[1]{\ensuremath{\operatorname{d}\!{#1}}}
+\newcommand{\code}[1]{\texttt{#1}}
+
+\begin{document}
+
+\begin{flushright}
+	\textbf{Luka Medic}\normalfont{, vpisna št.:} \textbf{28182014}\\
+\end{flushright}
+\begin{center}
+\vspace*{2cm}
+\large{\titlecap{\scshape Višje računske metode}}\\[0.5cm]	% Title
+\huge{\textbf{8. naloga -- Schmidtov razcep in matrično produktni nastavki}} \\[0.5cm]
+\normalsize \normalfont \today\\[2cm]
+\end{center}
+
+\section{Uvod}
+V nalogi je predstavljen kvantni Monte Carlo, ki je preveden na klasičen problem polimerne verige. Obravnavana sta primera harmonskega in anharmonskega oscilatorja s pot-integralnim Monte Carlo algoritmom. Rezultati so primerjani z analitičnimi rešitvami in rezultati spektralne metode.
+
+\section{Osnovno stanje Heisenbergove verige}
+Imejmo antiferomagnetno ($J=-1$) Heisenbergovo verigo sode dolžine $n$:
+\begin{equation}
+	H = \sum_{i=1}^n \vec{s}_i \cdot \vec{s}_{i+1},
+\end{equation}
+s točno diagonalizacijo pa želimo poiskati osnovno stanje verige.
+$H$ prestavimo z matriko velikosti $2^n \times 2^n$, ki jo konstruiramo z vsotami $n$ tenzorskih produktov Paulijevih matrik in identitet. Ker je večina elementov ničelnih, se v implementaciji splača uporabiti \code{sparse} matrike:\\
+\code{>>}  \code{for k in range(n-1):}\\
+\code{>>}\qquad\code{H += sparse.kron(sparse.identity(2**k),}\\
+\code{>>}\qquad\qquad\qquad\qquad\code{sparse.kron(h2, sparse.identity(2**(n-k-2))))}\\
+pri tem je \code{h2} matrika:
+\begin{equation}
+	\code{h2} = \begin{pmatrix} 
+      1 & 0 & 0 & 0 \\ 
+      0 & -1 & -2 & 0 \\ 
+      0 & -2 & -1 & 0 \\
+      0 & 0 & 0 & 1 
+   \end{pmatrix}.
+\end{equation}
+Tako konstruiran $H$ ustreza verigi z zaprtimi robnimi pogoji. Če želimo dodati periodične robne pogoje moramo povezati prvi in zadnji spin, kar storimo z:\\
+\code{>>}  \code{for s in (sx, sy, sz):}\\
+\code{>>}\qquad\code{H+=np.real(sparse.kron(s,sparse.kron(sparse.identity(2**(n-2)),s)))}\\
+
+Od tod naprej za oba primera uporabimo \code{sparse.linalg.eigsh}, da dobimo lastna stanja $H$.
+
+Ker $H$ komutira s skupno projekcijo spina $S_z$, bi lahko problem obravnavali po sektorjih z enakimi $S_z$. Pričakujemo, da bo osnovno stanje za antiferomagnetni Heisenbergov model iz sektorja z $n_\uparrow=n_\downarrow=n/2$. Če za osnovno stanje predpostavimo, da noben koeficient iz tega sektorja ni ničeln, potem lahko predpostavko preprosto preverimo s prikazom razmerij neničelnih koeficientov izračunanega osnovnega stanja s celotnim številom stanj iz tega sektorja $\binom{n}{n/2}$. Rezultati za periodično in neperiodično verigo so prikazani na slikah ?? in ??.
+
+%\begin{figure}[H]
+%	\centering
+%	\includegraphics[page=1,scale=0.5]{slika2_1}
+%	\caption{Prikazane so funkcijske odvisnosti povprečnih energij od inverzne temperature $\beta$. Za harmonski oscilator velja virialni teorem: $\langle V \rangle = \langle T \rangle = \frac{\langle  H\rangle}{2}$, pri čemer je $\langle  H\rangle = \frac{1}{2}\coth(\beta/2)$.}
+%	\label{fig:slika2_1}
+%\end{figure}
+
+
+\newpage
+\section{Zaključek}
+
+
+\end{document}
