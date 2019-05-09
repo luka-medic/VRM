@@ -28,6 +28,9 @@ plt.rc('lines', linewidth=1.0)
 
 periodic = 'per'
 
+for i in range(5):
+    print(i)
+
 ns = [4, 6, 8, 10, 12, 14, 16, 18, 20,]
 
 fig = plt.figure(figsize=(8, 6))
@@ -61,7 +64,9 @@ plt.ylabel('S')
 plt.legend()
 
 
-print('sprememba')
+print('sprememba2')
+
+
 
 fig.savefig('slika3_4.pdf')
 
