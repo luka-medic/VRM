@@ -61,6 +61,8 @@ plt.ylabel('S')
 plt.legend()
 
 
+print('sprememba')
+
 fig.savefig('slika3_4.pdf')
 
 plt.show()
