@@ -63,9 +63,7 @@ plt.xlabel('$n_A$ / $n$   (1 $-$ $n_B$ / $n$)')
 plt.ylabel('S')
 plt.legend()
 
-
 print('sprememba2')
-
 
 
 fig.savefig('slika3_4.pdf')
